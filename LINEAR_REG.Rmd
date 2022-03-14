@@ -1,0 +1,130 @@
+---
+title: "linear_practice"
+author: "Auma"
+date: "`r Sys.Date()`"
+output: html_document
+---
+#SIMPLE LINEAR REGRESSION
+
+## Linear regression is used to predict the value of an outcome variable Y 
+## based on one or more input predictor variables X.
+## The aim is to establish a linear relationship (a mathematical formula) 
+## between the predictor variable(s) and the response variable, 
+## so that, we can use this formula to estimate the value of the response Y, 
+## when only the predictors (Xs) values are known.
+### Importing dataset 
+```{r importing data}
+library(readr)
+train <- read_csv("C:/Users/Auma/Desktop/train.csv")
+View(train)
+```
+
+### Loading ggplot
+```{r }
+library(tidyverse)
+```
+
+### Check for NA and missing values
+### is.na return a vector with value TT for missing values.
+
+```{r }
+numberOfNA = sum(is.na(train))
+if(numberOfNA > 0) {
+  cat('Number of missing values found: ', numberOfNA)
+  cat('\nRemoving missing values...')
+  train = train[complete.cases(train), ]
+}
+
+```
+
+## Check for outliers
+### Divide the graph area in 2 columns
+
+```{r }
+par(mfrow = c(1, 2))
+```
+
+### Boxplot for X
+```{r }
+boxplot(train$x, main='X', sub=paste('Outliers: ', boxplot.stats(train$x)$out))
+```
+### Boxplot for Y
+```{r }
+boxplot(train$y, main='Y', sub=paste('Outliers: ', boxplot.stats(train$y)$out))
+```
+### Both boxplots shows no outliers and distribution is not skewed.
+
+
+## Finding correlation
+### Correlation is a statistical measure that suggests the level of linear dependence between two variables,
+### that occur in pair. 
+### Its value is between -1 to +1
+### Above 0 is positive correlation i.e. X is directly proportional to Y.
+### Below 0 is negative correlation i.e. X is inversly proportional to Y.
+### Value 0 suggests weak relation.
+
+```{r }
+
+cor(train$x, train$y)
+```
+### 0.99 shows a very strong relation.
+
+## Fitting Simple Linear regression
+### . is used to fit predictor using all independent variables
+```{r }
+regressor = lm(formula = y ~.,
+               data = train)
+```
+
+```{r }
+summary(regressor)
+```
+### In Linear Regression, the Null Hypothesis is that the coefficients associated with the variables is equal to zero. 
+### The alternate hypothesis is that the coefficients are not equal to zero 
+### (i.e. there exists a relationship between the independent variable in question and the dependent variable).
+### P value has 3 stars which means x is of very high statistical significance.
+### P value is less than 0. Generally below 0.05 is considered good.
+### R-Squared tells us is the proportion of variation in the dependent (response) variable that has been explained by this model.
+### R square is 0.99 which shows very good variation between dependent variable(y) and independent variable(x).
+```{r }
+names(regressor)
+
+```
+## Visualizing the training set results
+
+```{r }
+plot(train$x , train$y)
+abline(regressor , col=4)
+
+```
+### Above plot shows there are no outliers.
+### It clearly shows there is a linear relationship between x and y which is continous in nature.
+###residual plots to see if the linear regression assumptions are valid or not for the model
+```{r }
+par(mfrow=c(2,2))
+plot(regressor)
+```
+
+###linear regression assumption are not voilated its a good model.
+## Importing test data
+
+```{r }
+library(readr)
+test <- read_csv("C:/Users/Auma/Desktop/test.csv")
+View(test)
+```
+## Predicting the test results
+
+```{r }
+pred = predict(regressor, newdata = test)
+pred
+```
+## Visualizing the test set results
+
+```{r }
+plot(test$x,test$y)
+abline(regressor , col=2)
+```
+### Plot shows model was a good fit.
+
+
